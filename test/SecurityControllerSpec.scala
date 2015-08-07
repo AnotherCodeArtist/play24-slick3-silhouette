@@ -88,17 +88,25 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
         user must be(identity)
       }
     }
+    "refuse to send some Json if user is not authenticated" in new WithApplication() {
+      val hello = route(FakeRequest(GET, "/hello")).get
+      status(hello) must be(UNAUTHORIZED)
+    }
     "support sign-in and sign-out"  in new SecurityTestContext {
       new WithApplication(application) {
         val testUser = SignUpInfo("John","Doe","jd@test.com","topsecret")
         val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))).get
         status(signUpResponse) mustBe OK
         contentType(signUpResponse).value mustBe "application/json"
+        val cookie = cookies(signUpResponse).get("Csrf-Token")
         (contentAsJson(signUpResponse) \ "token") mustNot be(JsUndefined)
-        val token = (contentAsJson(signUpResponse) \ "token").get
+        val token = (contentAsJson(signUpResponse) \ "token").as[String]
         val config = application.injector.instanceOf[Configuration]
         val headerName = config.underlying.getString("silhouette.authenticator.headerName")
-        headerName mustBe "X-Auth-Token"
+        val hello1 = route(FakeRequest(GET, "/hello")).get
+        status(hello1) must be(UNAUTHORIZED)
+        val hello2 = route(FakeRequest(GET, "/hello").withHeaders((headerName,token))).get
+        status(hello2) must be(OK)
       }
     }
   }

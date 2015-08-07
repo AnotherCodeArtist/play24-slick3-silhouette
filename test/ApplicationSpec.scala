@@ -41,14 +41,7 @@ class ApplicationSpec extends PlaySpec {
       contentAsString(home) must include("Your new application is ready.")
     }
 
-    "refuse to send some Json if user is not authenticated" in new WithApplication() {
-      val hello = route(FakeRequest(GET, "/hello")).get
-      status(hello) must be(UNAUTHORIZED)
-      /*
-      contentType(hello) must be(Some("application/json"))
-      (contentAsJson(hello) \ "msg").get must be(JsString("Hello"))
-      */
-    }
+
     "send some Json if user is authenticated" in new SecurityTestContext {
       new WithApplication(application) {
         val env = environment
