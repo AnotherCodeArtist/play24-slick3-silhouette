@@ -10,6 +10,7 @@ import slick.driver.H2Driver.api._
 import slick.driver.JdbcProfile
 
 import scala.concurrent.Future
+
 //import slick.lifted._
 
 /**
@@ -26,37 +27,23 @@ class UserRepositorySlickImpl extends UserRepository with HasDatabaseConfig[Jdbc
 
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
-  def find(id: Int) =
-    for {
-      userOption <- db.run(users.filter(_.id === id).result.headOption)
-      userRoles <- db.run(dbRoles.filter(_.userID === id).map(_.role).result)
-    } yield if (userOption.isEmpty) userOption else Some(userOption.get.copy(roles = userRoles.toSet))
+  private def findBy(criterion: (Users => slick.lifted.Rep[Boolean])) = (for {
+    user <- db.run(users.filter(criterion).result.head)
+    dbRoles <- db.run(dbRoles.filter(_.userID === user.id).map(_.role).result)
+  } yield Some(user.copy(roles = dbRoles.toSet))).recover { case e => None }
 
+  def find(id: Int) = findBy(_.id === id)
 
   def addRoles(user: User) = db.run(dbRoles.filter(_.userID === user.id).map(_.role).result).flatMap {
     roleSet => Future.successful(Some(user.copy(roles = roleSet.toSet)))
   }
 
-
-  def findBy(criterion:(Users => slick.lifted.Rep[Boolean])) = db.run(users.filter(criterion).result.headOption)
-    .flatMap {
-    case Some(user) => addRoles(user)
-    case None => Future.successful(None)
-  }
-
-
-
-  def findByEmail(email: String) = db.run(users.filter(_.email === email).result.headOption)
-    .flatMap {
-    case Some(user) => addRoles(user)
-    case None => Future.successful(None)
-  }
-
+  def findByEmail(email: String) = findBy(_.email === email)
 
   private def updateRoles(user: User, roles: Set[String]): Future[User] =
     db.run(dbRoles.filter(_.userID === user.id).delete)
       .flatMap { _ => db.run(dbRoles ++= roles.map(DBRole(None, user.id.get, _)))
-      .flatMap { _ => Future.successful(user)
+      .map { _ => user
     }
     }
 

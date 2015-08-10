@@ -4,7 +4,7 @@ import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
 import com.mohiva.play.silhouette.test._
 import models.slick.PasswordInfos
 
-import models.{SignUpInfo, User}
+import models.{SignInInfo, SignUpInfo, User}
 import net.codingwell.scalaguice.ScalaModule
 import org.scalatestplus.play.{PlaySpec, OneAppPerTest}
 import play.api.Configuration
@@ -12,6 +12,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import play.api.libs.json._
+import play.api.mvc.Cookie
 import play.api.test.Helpers._
 import org.scalatest._
 import play.api.test._
@@ -20,6 +21,7 @@ import com.mohiva.play.silhouette.api.Environment
 import play.api.libs.concurrent.Execution.Implicits._
 import helpers.SecurityTestContext
 import play.api.test.WithApplication
+import play.filters.csrf.CSRF
 import repositories.UserRepository
 import org.scalatestplus.play._
 import org.scalatest.concurrent.ScalaFutures
@@ -36,17 +38,26 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
 
   import models.slick.DBPasswordInfo.dbTableElement2PasswordInfo
 
+
   "SecurityController" must {
     "return an error on signup if data is incomplete" in new SecurityTestContext {
       new WithApplication(application) {
-          val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.obj("message"->"Hi"))).get
+          val token = CSRF.SignedTokenProvider.generateToken
+          val signUpResponse = route(FakeRequest(POST, "/signup")
+            .withHeaders("Csrf-Token" -> token)
+            .withSession("csrfToken"->token)
+            .withJsonBody(Json.obj("message"->"Hi"))).get
           status(signUpResponse) must be(BAD_REQUEST)
       }
     }
     "register a user when signup information is OK" in new SecurityTestContext {
       new WithApplication(application) {
+        val token = CSRF.SignedTokenProvider.generateToken
         val testUser = SignUpInfo("John","Doe","jd@test.com","topsecret")
-        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))).get
+        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))
+          .withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token))
+          .get
         status(signUpResponse) mustBe OK
         contentType(signUpResponse).value mustBe "application/json"
         (contentAsJson(signUpResponse) \ "token") mustNot be(JsUndefined)
@@ -68,12 +79,15 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
     }
     "report an error if a user tries two register more than once"  in new SecurityTestContext {
       new WithApplication(application) {
+        val token = CSRF.SignedTokenProvider.generateToken
         val testUser = SignUpInfo("John","Doe","jd@test.com","topsecret")
-        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))).get
+        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser)).withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token)).get
         status(signUpResponse) mustBe OK
         contentType(signUpResponse).value mustBe "application/json"
         (contentAsJson(signUpResponse) \ "token") mustNot be(JsUndefined)
-        val secondUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))).get
+        val secondUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser)).withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token)).get
         status(secondUpResponse) mustBe BAD_REQUEST
       }
     }
@@ -92,21 +106,17 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
       val hello = route(FakeRequest(GET, "/hello")).get
       status(hello) must be(UNAUTHORIZED)
     }
-    "support sign-in and sign-out"  in new SecurityTestContext {
+    "support sign-in"  in new SecurityTestContext {
       new WithApplication(application) {
+        val token = CSRF.SignedTokenProvider.generateToken
         val testUser = SignUpInfo("John","Doe","jd@test.com","topsecret")
-        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser))).get
+        val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser)).withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token)).get
         status(signUpResponse) mustBe OK
-        contentType(signUpResponse).value mustBe "application/json"
-        val cookie = cookies(signUpResponse).get("Csrf-Token")
-        (contentAsJson(signUpResponse) \ "token") mustNot be(JsUndefined)
-        val token = (contentAsJson(signUpResponse) \ "token").as[String]
-        val config = application.injector.instanceOf[Configuration]
-        val headerName = config.underlying.getString("silhouette.authenticator.headerName")
-        val hello1 = route(FakeRequest(GET, "/hello")).get
-        status(hello1) must be(UNAUTHORIZED)
-        val hello2 = route(FakeRequest(GET, "/hello").withHeaders((headerName,token))).get
-        status(hello2) must be(OK)
+        val signInResponse = route(FakeRequest(POST, "/signin").withJsonBody(Json.toJson(SignInInfo(testUser.email,testUser.password,false))).withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token)).get
+        contentType(signInResponse).value mustBe "application/json"
+        (contentAsJson(signInResponse) \ "token") mustNot be(JsUndefined)
       }
     }
   }
