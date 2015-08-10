@@ -1,7 +1,9 @@
 package models
 
 import com.mohiva.play.silhouette.api.{LoginInfo, Identity}
-import play.api.libs.json.Json
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 /**
  * Created by salho on 05.08.15.
@@ -28,7 +30,13 @@ case class SignUpInfo(firstname: String,
                       password: String)
 
 object SignUpInfo {
-  implicit val signUpInfoFormat = Json.format[SignUpInfo]
+  implicit val signUpInfoWrites = Json.writes[SignUpInfo]
+  implicit val signUpInfoReads : Reads[SignUpInfo] = (
+    (JsPath \ "firstname").read[String](minLength[String](2)) and
+      (JsPath \ "lastname").read[String](minLength[String](2)) and
+      (JsPath \ "email").read[String](email) and
+      (JsPath \ "password").read[String]
+    )(SignUpInfo.apply _)
 }
 
 case class SignInInfo(email: String, password: String, rememberMe: Boolean)
