@@ -68,7 +68,7 @@ class SecurityController @Inject()(val messagesApi: MessagesApi,
       credentialsProvider.authenticate(Credentials(data.email, data.password)).flatMap { loginInfo =>
         userService.retrieve(loginInfo).flatMap {
           case Some(user) => env.authenticatorService.create(loginInfo).map {
-            case authenticator if data.rememberMe =>
+            case authenticator if data.rememberMe.getOrElse(false) =>
               val c = configuration.underlying
               authenticator.copy(
                 expirationDateTime = clock.now + c.as[FiniteDuration]("silhouette.authenticator.rememberMe.authenticatorExpiry"),

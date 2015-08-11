@@ -39,7 +39,7 @@ object SignUpInfo {
     )(SignUpInfo.apply _)
 }
 
-case class SignInInfo(email: String, password: String, rememberMe: Boolean)
+case class SignInInfo(email: String, password: String, rememberMe: Option[Boolean] = None)
 
 object SignInInfo {
   implicit val singInFormat = Json.format[SignInInfo]
