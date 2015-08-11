@@ -112,7 +112,7 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
         val signUpResponse = route(FakeRequest(POST, "/signup").withJsonBody(Json.toJson(testUser)).withHeaders("Csrf-Token" -> token)
           .withSession("csrfToken"->token)).get
         status(signUpResponse) mustBe OK
-        val signInResponse = route(FakeRequest(POST, "/signin").withJsonBody(Json.toJson(SignInInfo(testUser.email,testUser.password,false))).withHeaders("Csrf-Token" -> token)
+        val signInResponse = route(FakeRequest(POST, "/signin").withJsonBody(Json.toJson(SignInInfo(testUser.email,testUser.password))).withHeaders("Csrf-Token" -> token)
           .withSession("csrfToken"->token)).get
         contentType(signInResponse).value mustBe "application/json"
         (contentAsJson(signInResponse) \ "token") mustNot be(JsUndefined)
