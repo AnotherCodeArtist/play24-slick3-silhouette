@@ -38,7 +38,6 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
 
   import models.slick.DBPasswordInfo.dbTableElement2PasswordInfo
 
-
   "SecurityController" must {
     "return an error on signup if data is incomplete" in new SecurityTestContext {
       new WithApplication(application) {
