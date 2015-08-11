@@ -119,6 +119,17 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
         (contentAsJson(signInResponse) \ "token") mustNot be(JsUndefined)
       }
     }
+    "return an error if signup information does not contain a valid email" in new SecurityTestContext {
+      new WithApplication(application) {
+        val testUser = SignUpInfo("John","Doe","test","topsecret")
+        val token = CSRF.SignedTokenProvider.generateToken
+        val signUpResponse = route(FakeRequest(POST, "/signup")
+          .withHeaders("Csrf-Token" -> token)
+          .withSession("csrfToken"->token)
+          .withJsonBody(Json.toJson(testUser))).get
+        status(signUpResponse) must be(BAD_REQUEST)
+      }
+    }
   }
 
 }
