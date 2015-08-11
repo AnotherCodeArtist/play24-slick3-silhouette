@@ -18,7 +18,7 @@ class UserSpec extends PlaySpec with BeforeAndAfter with ScalaFutures {
 
   var db: Database = _
 
-  def createSchema = db.run(users.schema.create).futureValue
+  def createSchema() = db.run(users.schema.create).futureValue
 
   before { db = Database.forConfig("testdb");createSchema }
 
