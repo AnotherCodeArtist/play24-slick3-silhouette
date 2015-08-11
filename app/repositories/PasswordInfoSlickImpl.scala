@@ -41,26 +41,34 @@ class PasswordInfoSlickImpl @Inject()(userRepository: UserRepository) extends De
 
   override def update(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] =
     userRepository.findByLoginInfo(loginInfo).flatMap {
-      case Some(user) => db.run(pwInfos.filter(_.userID === user.id).update(passwordInfo2db(user.id.get,authInfo)))
-        .flatMap( _ => Future.successful(authInfo))
+      case None => throw new IllegalStateException("There must exist a user before password info can be added")
+      case Some(user) => db.run(pwInfos.filter(_.userID === user.id).update(passwordInfo2db(user.id.get, authInfo)))
+        .flatMap(_ => Future.successful(authInfo))
     }
 
   override def remove(loginInfo: LoginInfo): Future[Unit] =
     userRepository.findByLoginInfo(loginInfo)
-    .flatMap { case Some(user) => db.run(pwInfos.filter(_.userID === user.id).delete)
-      .flatMap(_ => Future.successful({}) )}
+      .flatMap {
+      case None => throw new IllegalStateException("There must exist a user before password info can be added")
+      case Some(user) => db.run(pwInfos.filter(_.userID === user.id).delete)
+        .flatMap(_ => Future.successful({}))
+    }
+
 
   override def save(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] =
     userRepository.findByLoginInfo(loginInfo).flatMap {
+      case None => throw new IllegalStateException("There must exist a user before password info can be added")
       case Some(user) => db.run(pwInfos.filter(_.userID === user.id).result.headOption).flatMap {
-        case Some(pwInfo) => update(loginInfo,authInfo)
-        case None => add(loginInfo,authInfo)
+        case Some(pwInfo) => update(loginInfo, authInfo)
+        case None => add(loginInfo, authInfo)
       }
     }
 
   override def add(loginInfo: LoginInfo, authInfo: PasswordInfo): Future[PasswordInfo] =
     userRepository.findByLoginInfo(loginInfo)
-      .flatMap { case Some(user) => db.run(pwInfos+=passwordInfo2db(user.id.get,authInfo))
-      .flatMap(_ => Future.successful(authInfo))
+      .flatMap {
+      case None => throw new IllegalStateException("There must exist a user before password info can be added")
+      case Some(user) => db.run(pwInfos += passwordInfo2db(user.id.get, authInfo))
+        .flatMap(_ => Future.successful(authInfo))
     }
 }

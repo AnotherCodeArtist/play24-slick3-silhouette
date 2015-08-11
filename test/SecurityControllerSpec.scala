@@ -103,9 +103,9 @@ class SecurityControllerSpec extends PlaySpec with ScalaFutures {
         val token = (contentAsJson(signUpResponse) \ "token").as[String]
         val config = application.injector.instanceOf[Configuration]
         val headerName = config.underlying.getString("silhouette.authenticator.headerName")
-        val hello1 = route(FakeRequest(GET, "/hello")).get
+        val hello1 = route(FakeRequest(GET, "/whoami")).get
         status(hello1) must be(UNAUTHORIZED)
-        val hello2 = route(FakeRequest(GET, "/hello").withHeaders((headerName,token))).get
+        val hello2 = route(FakeRequest(GET, "/whoami").withHeaders(("X-Auth-Token",token))).get
         status(hello2) must be(OK)
       }
     }

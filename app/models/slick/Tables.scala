@@ -7,6 +7,7 @@ import com.mohiva.play.silhouette.api.util.PasswordInfo
 import models.{UserPreview, User}
 import slick.driver.H2Driver.api._
 import slick.lifted.TableQuery
+import scala.language.implicitConversions
 
 /**
  * Created by salho on 03.08.15.
