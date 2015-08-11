@@ -57,5 +57,5 @@ object User {
   def withoutRoles(t: (Option[Int], String, String, String, String, String)) =
     User(t._1, t._2, t._3, t._4, t._5, t._6, Set())
 
-  def toTuple(u: User) = Some(u.id, u.firstname, u.lastname, u.email, u.providerID, u.providerKey)
+  def toTuple(u: User) = Some((u.id, u.firstname, u.lastname, u.email, u.providerID, u.providerKey))
 }
