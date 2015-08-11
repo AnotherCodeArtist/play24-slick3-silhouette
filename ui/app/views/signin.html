@@ -1,0 +1,16 @@
+<form>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" data-ng-model="signInInfo.email" placeholder="Email">
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input data-ng-model="signInInfo.password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" data-ng-model="signInInfo.rememberMe"> Remember me
+        </label>
+    </div>
+    <button type="submit" class="btn btn-default" ng-click="singIn()">Log in</button>
+</form>
