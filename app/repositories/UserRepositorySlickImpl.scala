@@ -1,8 +1,11 @@
 package repositories
 
+import javax.inject.Inject
+
 import com.mohiva.play.silhouette.api.LoginInfo
+import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import models.{UserPreview, User}
-import models.slick.{DBRole, Roles, Users}
+import models.slick._
 import play.api.Play
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -16,7 +19,7 @@ import scala.concurrent.Future
 /**
  * Created by salho on 05.08.15.
  */
-class UserRepositorySlickImpl extends UserRepository with HasDatabaseConfig[JdbcProfile] {
+class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) extends UserRepository with HasDatabaseConfig[JdbcProfile] {
 
   //import driver.api._
   //import slick.driver.MySQLDriver.api._
@@ -24,6 +27,8 @@ class UserRepositorySlickImpl extends UserRepository with HasDatabaseConfig[Jdbc
 
   private val users = TableQuery[Users]
   private val dbRoles = TableQuery[Roles]
+  private val allQuery = users.sortBy(u => (u.lastname.asc, u.firstname.asc)).map(_.preview)
+  private val pwInfos = TableQuery[PasswordInfos]
 
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
@@ -70,5 +75,18 @@ class UserRepositorySlickImpl extends UserRepository with HasDatabaseConfig[Jdbc
     findBy(u => u.providerID === loginInfo.providerID && u.providerKey === loginInfo.providerKey)
 
   override def all: Future[Seq[UserPreview]] =
-    db.run(users.map(_.preview).result)
+    db.run(allQuery.result)
+
+  override def all(page: Int, pageSize: Int): Future[Seq[UserPreview]] =
+    db.run(allQuery.drop(page * pageSize).take(pageSize).result)
+
+  override def delete(id: Int): Future[Unit] = {
+    val delQuery = for {
+      roleDelete <- dbRoles.filter(_.userID === id).delete
+      pwInfoDelete <- pwInfos.filter(_.userID === id).delete
+      userDelete <- users.filter(_.id === id).delete
+    } yield (roleDelete,pwInfoDelete,userDelete)
+    db.run(delQuery).map(_ => {})
+  }
+
 }

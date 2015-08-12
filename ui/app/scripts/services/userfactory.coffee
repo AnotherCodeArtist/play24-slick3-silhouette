@@ -10,3 +10,4 @@
 angular.module('uiApp')
   .factory 'UserFactory', ($http) ->
     get: -> $http.get('/whoami')
+    count: -> $http.get('/user/count')

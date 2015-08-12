@@ -37,6 +37,9 @@ app.config ($routeProvider,$httpProvider, $authProvider) ->
   .when '/signIn',
     templateUrl: 'views/signin.html'
     controller: 'SigninCtrl'
+  .when '/listUsers',
+    templateUrl: 'views/listusers.html'
+    controller: 'ListusersCtrl'
   .otherwise '/'
 
   $httpProvider.interceptors.push ($q, $injector) =>

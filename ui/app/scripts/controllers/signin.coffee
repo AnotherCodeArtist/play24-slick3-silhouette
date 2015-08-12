@@ -17,17 +17,22 @@ angular.module('uiApp')
           UserFactory.get()
       .then (response) ->
         $rootScope.user = response.data
+        $rootScope.$broadcast "userChanged"
         $alert({
-          content: 'You have successfully signed in',
-          animation: 'fadeZoomFadeDown',
-          type: 'material',
-          duration: 3})
+          titel: "Success"
+          content: 'You have successfully signed in'
+          effect: 'fade-in'
+          speed: 'normal'
+          alertType:'success'
+          placement: 'top-right'
+          duration: 5000})
       .catch (response) ->
         console.log(response)
         $alert({
-        content: response.data.message,
-        animation: 'fadeZoomFadeDown',
-        type: 'material',
-        duration: 3})
+        content: response.data.message or response.data
+        effect: 'fade-in'
+        speed: 'normal'
+        alertType:'danger'
+        duration: 5000})
 
 

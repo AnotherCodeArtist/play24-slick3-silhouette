@@ -9,5 +9,7 @@
 ###
 angular.module('uiApp')
   .controller 'NavigationCtrl', ($scope,$auth,$rootScope) ->
-    $scope.logout = -> $auth.logout().then( -> $rootScope.user={})
+    $scope.logout = -> $auth.logout().then ->
+      $rootScope.user={}
+      $rootScope.$broadcast "userChanged"
     $scope.isAuthenticated = -> $auth.isAuthenticated()

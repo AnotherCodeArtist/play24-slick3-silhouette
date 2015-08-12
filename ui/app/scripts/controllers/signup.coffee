@@ -14,7 +14,9 @@ angular.module('uiApp')
       $auth.signup($scope.signUpInfo)
       .then ->
         $http.get('/whoami')
-      .then (data) ->
-        $alert('form saved successfully.',"Oley! #{JSON.stringify(data)}", 'success', 'top-left')
+      .then (response) ->
+        $rootScope.user = response.data
+        $rootScope.$broadcast "userChanged"
+        $alert("Welcome #{$rootScope.user.firstname}!","Success!", 'success', 'top-left')
       .catch (err) ->
         $alert(err.data.message,'You could not be registered!', 'danger', 'top-right')

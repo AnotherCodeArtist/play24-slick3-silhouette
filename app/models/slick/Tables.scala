@@ -29,7 +29,7 @@ class Users(tag: Tag) extends Table[User](tag, "USERS") {
 
   def * = (id.?, firstname, lastname, email, providerID, providerKey) <>(User.withoutRoles, User.toTuple)
 
-  def preview = (id, firstname, lastname, email) <>(UserPreview.tupled,UserPreview.unapply)
+  def preview = (id, firstname, lastname, email) <>((UserPreview.apply _).tupled,UserPreview.unapply)
 }
 
 case class DBRole(id: Option[Int], userId: Int, role: String)

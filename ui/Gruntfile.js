@@ -340,6 +340,16 @@ module.exports = function (grunt) {
         }]
       }
     },
+    ngAnnotate: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '.tmp/concat/scripts',
+          src: '*.js',
+          dest: '.tmp/concat/scripts'
+        }]
+      }
+    },
 
     // Replace Google CDN references
     cdnify: {
@@ -447,7 +457,8 @@ module.exports = function (grunt) {
     'concurrent:dist',
     'autoprefixer',
     'concat',
-    'ngmin',
+    /*'ngmin',*/
+    'ngAnnotate',
     'copy:dist',
     'cdnify',
     'cssmin',
