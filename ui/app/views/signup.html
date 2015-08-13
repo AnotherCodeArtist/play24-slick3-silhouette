@@ -1,19 +1,37 @@
-<form>
+<form name="signUpForm" class="css-form" novalidate>
     <div class="form-group">
-        <label for="exampleInputFirstname">Firstname</label>
-        <input type="text" class="form-control" id="exampleInputFirstname" data-ng-model="signUpInfo.firstname" placeholder="Firstname">
+        <label for="firstname">Firstname *</label>
+        <input type="text" class="form-control" id="firstname" name="firstname" data-ng-model="signUpInfo.firstname" placeholder="Firstname" required/>
+        <div ng-show="signUpForm.firstname.$invalid && signUpForm.firstname.$touched">Please insert your firstname.</div>
     </div>
     <div class="form-group">
-        <label for="exampleInputLastname">Lastname</label>
-        <input type="text" class="form-control" id="exampleInputLastname" data-ng-model="signUpInfo.lastname" placeholder="Lastname">
+        <label for="lastname">Lastname *</label>
+        <input type="text" class="form-control" id="lastname"  name="lastname" data-ng-model="signUpInfo.lastname" placeholder="Lastname" required/>
+        <div ng-show="signUpForm.lastname.$invalid && signUpForm.lastname.$touched">Please insert your lastname.</div>
     </div>
     <div class="form-group">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" data-ng-model="signUpInfo.email" placeholder="Email">
+        <label for="email">Email address *</label>
+        <input type="email" class="form-control" id="email" name="email" data-ng-model="signUpInfo.email" placeholder="Email" required/>
+        <div ng-show="signUpForm.email.$invalid && signUpForm.email.$touched">
+            <span ng-show="signUpForm.email.$error.required">Pleas insert your email.</span>
+            <span ng-show="signUpForm.email.$error.email">This is not a valid email.</span>
+        </div>
     </div>
     <div class="form-group">
-        <label for="exampleInputPassword1">Password</label>
-        <input data-ng-model="signUpInfo.password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+        <label for="password">Password *</label>
+        <input data-ng-model="signUpInfo.password" name="password" name="password" type="password" class="form-control" id="password" placeholder="Password" required/>
+        <div ng-show="signUpForm.password.$invalid && signUpForm.password.$touched">
+            <span ng-show="signUpForm.password.$error.required">Please select a password.</span>
+        </div>
+
     </div>
-    <button type="submit" class="btn btn-default" ng-click="signUp()">Submit</button>
+    <div class="form-group">
+        <label for="password2">Re-type your Password *</label>
+        <input data-ng-model="password2" type="password" class="form-control" id="password2" name="password2" placeholder="re-type Password" required must-match="signUpInfo.password"/>
+        <div ng-show="signUpForm.password2.$invalid && signUpForm.password2.$touched">
+            <span ng-show="signUpForm.password2.$error.required">Please re-type your password.</span>
+            <span ng-show="signUpForm.password2.$error.mustMatch">Make sure that you re-type your password correctly.</span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary" ng-click="signUp()" ng-disabled="signUpForm.$invalid">Submit</button>
 </form>

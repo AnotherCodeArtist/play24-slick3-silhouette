@@ -42,17 +42,16 @@
                     <ul class="nav nav-pills pull-right">
                         <li class="active"><a ng-href="#/">Home</a></li>
                         <li><a ng-href="#/about">About</a></li>
-                        <li><a ng-href="#/contact">Contact</a></li>
                         <li class="dropdown">
                             <a is-admin  class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin</a>
                             <ul class="dropdown-menu">
                                 <li><a href="#/listUsers">List Users</a></li>
-                                <!--li><a href="#">Another action</a></li>
+                                <li><a href="#">Another action</a></li>
                                 <li><a href="#">Something else here</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="#">Separated link</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="#">One more separated link</a></li-->
+                                <li><a href="#">One more separated link</a></li>
                             </ul>
                         </li>
                         <li><a ng-href="#/signup" is-not-authenticated>Sign Up</a></li>
@@ -127,6 +126,7 @@
 <script src="scripts/directives/isadmin.js"></script>
 <script src="scripts/controllers/listusers.js"></script>
 <script src="scripts/services/user.js"></script>
+<script src="scripts/directives/mustmatch.js"></script>
 <!-- endbuild -->
 </body>
 </html>

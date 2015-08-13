@@ -12,4 +12,4 @@ angular.module('uiApp')
     $scope.logout = -> $auth.logout().then ->
       $rootScope.user={}
       $rootScope.$broadcast "userChanged"
-    $scope.isAuthenticated = -> $auth.isAuthenticated()
+

@@ -21,8 +21,16 @@ module.exports = function (grunt) {
     dist: 'dist'
   };
 
+  grunt.loadNpmTasks('grunt-debug-task');
+
   // Define the configuration for all the tasks
   grunt.initConfig({
+
+    debug: {
+      options: {
+        open: true // do not open node-inspector in Chrome automatically
+      }
+    },
 
     // Project settings
     yeoman: appConfig,

@@ -64,9 +64,9 @@ app.config ($routeProvider,$httpProvider, $authProvider) ->
   # Auth config
   $authProvider.httpInterceptor = true; # Add Authorization header to HTTP request
   $authProvider.loginOnSignup = true
-  $authProvider.loginRedirect = '/home'
+  $authProvider.loginRedirect = '/'
   $authProvider.logoutRedirect = '/'
-  $authProvider.signupRedirect = '/home'
+  $authProvider.signupRedirect = '/'
   $authProvider.loginUrl = '/signin'
   $authProvider.signupUrl = '/signup'
   $authProvider.loginRoute = '/signin'
