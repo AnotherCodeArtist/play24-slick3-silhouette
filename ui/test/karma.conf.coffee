@@ -13,6 +13,7 @@ module.exports = (config) ->
 
     # list of files / patterns to load in the browser
     files: [
+      'bower_components/jquery/dist/jquery.js'
       'bower_components/angular/angular.js'
       'bower_components/angular-mocks/angular-mocks.js'
       'bower_components/angular-animate/angular-animate.js'
@@ -48,12 +49,13 @@ module.exports = (config) ->
     # - PhantomJS
     # - IE (only Windows)
     browsers: [
-      'PhantomJS'
+      'Chrome' #'PhantomJS'
     ]
 
     # Which plugins to enable
     plugins: [
       'karma-phantomjs-launcher'
+      'karma-chrome-launcher'
       'karma-jasmine'
       'karma-coffee-preprocessor'
     ]

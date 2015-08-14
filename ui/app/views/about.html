@@ -1,1 +1,19 @@
-<p>This is the about view.</p>
+<h4>Database</h4>
+<p>This application is configured to use a PostgreSQL database for development and production
+  but to test against an inmemory database</p>
+
+<div class="bs-callout bs-callout-info">
+  <p>Postgres settings can be found in the <em>/conf/application.conf</em>. So you will either have to create this
+  database upfront or change these setting</p>
+  <div><pre>
+  <code>
+    slick.dbs.default.driver="slick.driver.PostgresDriver$"
+    slick.dbs.default.db.driver="org.postgresql.Driver"
+    slick.dbs.default.db.url="jdbc:postgresql://localhost/swengs"
+    slick.dbs.default.db.user="swengs"
+    slick.dbs.default.db.password="swengs"
+  </code></pre></div>
+</div>
+<p>The test-database is configured as part of the trait <em>helpers.SecurityTestContext</em>.</p>
+
+

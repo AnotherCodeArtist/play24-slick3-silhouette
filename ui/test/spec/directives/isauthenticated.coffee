@@ -19,9 +19,23 @@ describe 'Directive: isAuthenticated', ->
     element = angular.element '<div is-authenticated>Only for Users</div>'
     element = $compile(element) $scope
     expect(element.css('display')).toBe 'none'
+    identity.checkCalls()
 
   it 'should make elements visible if user is logged in', inject ($compile) ->
     identity.expectIsAuthenticated().respond(true)
     element = angular.element '<div is-authenticated style="display:none">Only for Users</div>'
     element = $compile(element) $scope
     expect(element.css('display')).toBe ''
+    identity.checkCalls()
+
+
+  it 'should react on userChanged events', inject ($compile) ->
+    identity.expectIsAuthenticated().respond(false)
+    element = angular.element '<div is-authenticated>Only for Users</div>'
+    element = $compile(element) $scope
+    expect(element.css('display')).toBe 'none'
+    identity.expectIsAuthenticated().respond(true)
+    $rootScope.$broadcast("userChanged")
+    $rootScope.$digest()
+    expect(element.css('display')).toBe ''
+    identity.checkCalls()

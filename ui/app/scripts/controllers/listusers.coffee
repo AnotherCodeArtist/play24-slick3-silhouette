@@ -22,7 +22,6 @@ angular.module('uiApp')
       boxOptions =
         boxType: 'confirm'
         afterConfirm: ->
-          console.log "about to delete user #{user.id}"
           deleteAction(user.id)
         content: "Do you really want to delete user #{user.firstname}, #{user.lastname}?"
         confirmText: "Delete #{user.firstname}"
