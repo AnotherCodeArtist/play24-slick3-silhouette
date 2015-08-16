@@ -39,9 +39,6 @@ class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) 
 
   def find(id: Int) = findBy(_.id === id)
 
-  def addRoles(user: User) = db.run(dbRoles.filter(_.userID === user.id).map(_.role).result).flatMap {
-    roleSet => Future.successful(Some(user.copy(roles = roleSet.toSet)))
-  }
 
   def findByEmail(email: String) = findBy(_.email === email)
 
