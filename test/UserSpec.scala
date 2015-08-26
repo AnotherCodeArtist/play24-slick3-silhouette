@@ -27,9 +27,8 @@ class UserSpec extends PlaySpec with BeforeAndAfter with ScalaFutures {
     "create a database schema" in new WithApplication(){
 
       val tables = db.run(MTable.getTables).futureValue
-
-      assert(tables.size == 1)
-      assert(tables.count(_.name.name.equalsIgnoreCase("Users")) == 1)
+      tables.size mustBe 1
+      tables.count(_.name.name.equalsIgnoreCase("Users")) mustBe 1
     }
     "store users" in {
 
