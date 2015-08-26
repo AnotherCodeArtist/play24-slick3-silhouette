@@ -49,6 +49,9 @@ case class UserPreview(id: Int,
                        firstname: String,
                        lastname: String,
                        email: String)
+object UserPreview {
+  implicit val userPreviewFormat = Json.format[UserPreview]
+}
 
 
 object User {

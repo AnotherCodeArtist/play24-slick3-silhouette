@@ -1,0 +1,20 @@
+<h2>Our Users</h2>
+<p>Users: {{count}}</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Lastname</th>
+            <th>Firstname</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-ng-repeat="user in users">
+            <td>{{user.firstname}}</td>
+            <td>{{user.lastname}}</td>
+            <td>{{user.email}}</td>
+            <td><a title="remove user {{user.lastname}}" ng-click="showConfirm(user)"><span class="glyphicon glyphicon-remove-sign" style="color:red;cursor: hand"></span></a></td>
+        </tr>
+    </tbody>
+</table>

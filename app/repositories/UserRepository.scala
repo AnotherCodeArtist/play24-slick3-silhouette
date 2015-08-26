@@ -11,6 +11,8 @@ import scala.concurrent.Future
  * Created by salho on 05.08.15.
  */
 
+
+
 trait UserRepository {
     def findByEmail(email:String): Future[Option[User]]
     def save(user: User): Future[User]
@@ -18,4 +20,6 @@ trait UserRepository {
     def find(id: Int): Future[Option[User]]
     def findByLoginInfo(loginInfo: LoginInfo): Future[Option[User]]
     def all: Future[Seq[UserPreview]]
+    def all(page:Int,pageSize:Int): Future[Seq[UserPreview]]
+    def delete(id: Int): Future[Unit]
 }

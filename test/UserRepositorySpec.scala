@@ -70,7 +70,7 @@ class UserRepositorySpec extends PlaySpec with ScalaFutures {
         user2.roles must contain only("USER", "ADMINISTRATOR")
       }
     }
-    "list users" in new SecurityTestContext {
+    "list all users" in new SecurityTestContext {
       new WithApplication(application) {
         val userRepo = app.injector.instanceOf[UserRepository]
         createTestUsers(10, userRepo).futureValue
@@ -80,11 +80,34 @@ class UserRepositorySpec extends PlaySpec with ScalaFutures {
         allUsers.length must be(10)
       }
     }
+    "delete a user" in new SecurityTestContext {
+      new WithApplication(application) {
+        val userRepo = app.injector.instanceOf[UserRepository]
+        createTestUsers(5, userRepo).futureValue
+        val user2 = userRepo.findByEmail("user2@test.com").futureValue.get
+        userRepo.delete(user2.id.get).futureValue
+        val count = userRepo.count.futureValue
+        count must be(4)
+        userRepo.findByEmail("user2@test.com").futureValue mustBe None
+      }
+    }
+    "provide pagination" in new SecurityTestContext {
+      new WithApplication(application) {
+        val userRepo = app.injector.instanceOf[UserRepository]
+        createTestUsers(7, userRepo).futureValue
+        val page1 = userRepo.all(0,5).futureValue
+        page1.length mustBe 5
+        page1(4).lastname mustBe "Last5"
+        val page2 = userRepo.all(1,5).futureValue
+        page2.length mustBe 2
+        page2(0).lastname mustBe "Last6"
+      }
+    }
   }
 
   def createTestUsers(number: Int, userRepo: UserRepository) =
     Future.sequence((1 to number)
-      .map(i => User(None, s"First$i", s"Last$i", s"user$i@test.com", "myprovider", s"user$i@test.com"))
+      .map(i => User(None, s"First$i", s"Last$i", s"user$i@test.com", "credentials", s"user$i@test.com"))
       .map(userRepo.save(_)))
 
 }

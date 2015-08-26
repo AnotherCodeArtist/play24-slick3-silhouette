@@ -1,0 +1,26 @@
+<form name="singInForm" class="css-form">
+    <div class="form-group">
+        <label for="email">Email address *</label>
+        <input type="email" class="form-control" id="email" name="email" data-ng-model="signInInfo.email" placeholder="Email" required/>
+        <div ng-show="singInForm.email.$invalid && signInForm.email.$touched">
+            <span ng-show="signInForm.email.$error.required">Pleas insert your email.</span>
+            <span ng-show="signInForm.email.$error.email">This is not a valid email.</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="password">Password *</label>
+        <input data-ng-model="signInInfo.password" name="password" name="password" type="password" class="form-control" id="password" placeholder="Password" required/>
+        <div ng-show="signInForm.password.$invalid && signInForm.password.$touched">
+            <span ng-show="signInForm.password.$error.required">Please select a password.</span>
+        </div>
+
+    </div>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" data-ng-model="signInInfo.rememberMe"> Remember me
+        </label>
+    </div>
+    <button type="submit" class="btn btn-default" ng-click="singIn()">Log in</button>
+</form>
+<p>Info:</p>
+<p>{{signInInfo | json}}</p>
