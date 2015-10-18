@@ -32,23 +32,23 @@ class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) 
 
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
-  private def findBy(criterion: (Users => slick.lifted.Rep[Boolean])) = (for {
-    user <- db.run(users.filter(criterion).result.head)
-    dbRoles <- db.run(dbRoles.filter(_.userID === user.id).map(_.role).result)
-  } yield Some(user.copy(roles = dbRoles.toSet))).recover { case e => None }
+  private def findBy(criterion: (Users => slick.lifted.Rep[Boolean])) = db.run(
+    (for {
+      user <- users.filter(criterion).result.head
+      dbRoles <- dbRoles.filter(_.userID === user.id).map(_.role).result
+    } yield Some(user.copy(roles = dbRoles.toSet)))
+  ).recover { case e => None }
 
   def find(id: Int) = findBy(_.id === id)
 
 
   def findByEmail(email: String) = findBy(_.email === email)
 
-  private def updateRoles(user: User, roles: Set[String]): Future[User] =
-    db.run(dbRoles.filter(_.userID === user.id).delete)
-      .flatMap { _ => db.run(dbRoles ++= roles.map(DBRole(None, user.id.get, _)))
-      .map { _ => user
-    }
-    }
 
+  private def updateRolesQuery(userId: Int, roles: Set[String]) = for {
+    d <- dbRoles.filter(_.userID === userId).delete
+    a <- dbRoles ++= roles.map(DBRole(None, userId, _))
+  } yield roles
 
   def save(user: User): Future[User] = {
     val existingUserFuture = user.id match {
@@ -56,13 +56,19 @@ class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) 
       case Some(id) => find(id)
     }
     existingUserFuture.flatMap {
-      case None => db.run((users returning users.map(_.id)
-        into ((user, id) => user.copy(id = Some(id)))
-        ) += user).flatMap(updateRoles(_, user.roles))
-      case Some(_) => for {
-        updatedUser <- db.run(users.filter(_.id === user.id).update(user))
-        upatedRoles <- updateRoles(user, user.roles)
-      } yield user
+      case None => db.run(
+        for {
+          u <- (users returning users.map(_.id)
+            into ((user, id) => user.copy(id = Some(id)))) += user
+          r <- updateRolesQuery(u.id.get, user.roles)
+        } yield u
+      )
+      case Some(_) => db.run(
+        for {
+          updatedUser <- users.filter(_.id === user.id).update(user)
+          upatedRoles <- updateRolesQuery(user.id.get, user.roles)
+        } yield user
+      )
     }
   }
 
@@ -82,7 +88,7 @@ class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) 
       roleDelete <- dbRoles.filter(_.userID === id).delete
       pwInfoDelete <- pwInfos.filter(_.userID === id).delete
       userDelete <- users.filter(_.id === id).delete
-    } yield (roleDelete,pwInfoDelete,userDelete)
+    } yield (roleDelete, pwInfoDelete, userDelete)
     db.run(delQuery).map(_ => {})
   }
 
