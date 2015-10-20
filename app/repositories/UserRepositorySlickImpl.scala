@@ -14,16 +14,14 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.Future
 
-//import slick.lifted._
+
 
 /**
+ * Sample Repository Implementation demonstrating the use if Slick queries
  * Created by salho on 05.08.15.
  */
 class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) extends UserRepository with HasDatabaseConfig[JdbcProfile] {
 
-  //import driver.api._
-  //import slick.driver.MySQLDriver.api._
-  //import scala.concurrent.ExecutionContext.Implicits.global
 
   private val users = TableQuery[Users]
   private val dbRoles = TableQuery[Roles]
@@ -32,15 +30,15 @@ class UserRepositorySlickImpl @Inject()(authInfoRepository: AuthInfoRepository) 
 
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
+
   private def findBy(criterion: (Users => slick.lifted.Rep[Boolean])) = db.run(
-    (for {
+    for {
       user <- users.filter(criterion).result.head
       dbRoles <- dbRoles.filter(_.userID === user.id).map(_.role).result
-    } yield Some(user.copy(roles = dbRoles.toSet)))
+    } yield Some(user.copy(roles = dbRoles.toSet))
   ).recover { case e => None }
 
   def find(id: Int) = findBy(_.id === id)
-
 
   def findByEmail(email: String) = findBy(_.email === email)
 
