@@ -13,7 +13,6 @@
     "angular-touch": "1.4.3",
     "angular-route": "1.4.3",
     "quantumui": "1.0.0",
-    "angular-cookies": "1.4.3",
     "ui-router": "0.2.15",
     "satellizer": "~0.11"
   },
@@ -24,6 +23,6 @@
   "appPath": "app",
   "resolutions": {
     "angular": "1.4.3",
-    "bootstrap": "3.3.5"
+    "bootstrap": ">=3.3.2"
   }
 }
